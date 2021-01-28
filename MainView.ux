@@ -1,0 +1,9 @@
+<App Background="#F7F7F8">
+<ClientPanel>
+ <Router ux:Name="router" /> 
+ <Navigator DefaultPath="overview">
+	 <Overview ux:Template="overview" router="router" />
+	 <Detail ux:Template="detail" router="router"/>
+ </Navigator>
+</ClientPanel>
+</App>

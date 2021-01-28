@@ -1,0 +1,65 @@
+<Page ux:Class="Detail">
+  <Router ux:Dependency="router" />
+    <DockPanel>
+        <StackPanel Dock="Top" Margin="0,50,0,0">
+           <Image Width="60" Alignment="Center" Url="{logoUrl}" />
+           <Text FontSize="25" Alignment="Center" Margin="0,20,0,0" Value="{name}" />
+            <Text Value="${price_usd}" Alignment="Center" FontSize="18" Margin="0,10,0,0" Color="#1DDAB8"  />
+        </StackPanel>
+        
+        <ScrollView>
+          <StackPanel Margin="0,30,0,0">
+            <Rectangle Color="White" Width="90%"  Height="100%" Padding="25,25,25,25" CornerRadius="12">
+                <DropShadow Size="8" Distance="4" Spread="0.03" Color="#DEDEDF" Angle="90" />          
+                <Text Value="{description}" TextWrapping="Wrap" />
+            </Rectangle>
+            <Text Clicked="{goBack}" Name="backButton" Alignment="Center" Margin="0,30,0,0" Value="👈  Back to Overview">
+                <WhilePressed>
+                    <Scale Factor="1.1" Duration="0.1"/>
+                    <Change backButton.Color="#3417A6" />
+                </WhilePressed>
+            </Text>
+          </StackPanel>
+        </ScrollView>
+    </DockPanel>
+
+  <JavaScript>
+     var Observable = require("FuseJS/Observable");
+     
+     const API_KEY = "XXX-YOUR-API-KEY-YYYY"  
+
+     var name = Observable()
+     var price_usd = Observable()
+     var logoUrl = Observable()
+     var description = Observable()
+         
+     this.Parameter.onValueChanged(module, function(param){
+      // display price we get from already fetched overviewData
+      name.value = param.name
+      price_usd.value = param.price_usd
+      console.log(JSON.stringify(param))
+      // fetch description info based on symbol from already fetched overviewData
+      fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?symbol=${param.symbol}&CMC_PRO_API_KEY=${API_KEY}`)
+      .then(function(response) { return response.json(); })
+      .then(function(responseObject) {
+              const data = responseObject.data[param.symbol]
+              logoUrl.value = data.logo
+              description.value = data.description
+              //console.dir(JSON.stringify(data)) log responseData
+           });
+      });
+
+      function goBack() {
+        router.goBack()
+      }
+
+     module.exports = {
+       name,
+       price_usd,
+       logoUrl,
+       description,
+       goBack
+     }
+     
+  </JavaScript>
+</Page>

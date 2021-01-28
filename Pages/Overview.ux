@@ -1,0 +1,59 @@
+<Page ux:Class="Overview">
+  <Router ux:Dependency="router" />
+    <DockPanel>
+        <StackPanel Dock="Top" Margin="0,50,0,0">
+           <Image Width="60" Alignment="Center" File="../Assets/imgs/logo.png" />
+           <Text FontSize="25" Alignment="Center" Margin="0,20,0,0" Value="CryptoTracker" />
+        </StackPanel>
+
+        <ScrollView>
+            <StackPanel Margin="0,50,0,0" ItemSpacing="20">
+                <Each Items="{cryptocurrencies}">
+                    <!-- Start: CryptoCard -->
+                    <Rectangle Clicked="{goToDetail}" Color="White" Width="80%" Height="60" CornerRadius="12">
+                        <Circle Height="40" Width="40" Color="#E0DFF7" Alignment="Left" Margin="20,0,0,0">
+                            <Text Value="{symbol}" Alignment="Center" FontSize="12" Color="#3417A6"  />
+                        </Circle>
+                        <Text Value="{name}" Alignment="Center" FontSize="18" Color="#3417A6"  />
+                        <Text Value="${price_usd}" Alignment="CenterRight" FontSize="10" Margin="0,0,20,0" Color="#1DDAB8"  />
+                        <DropShadow Size="8" Distance="4" Spread="0.03" Color="#DEDEDF" Angle="90" />          
+                    </Rectangle>
+                    <!-- End: CryptoCard -->
+                </Each>
+            </StackPanel>
+        </ScrollView>
+    </DockPanel>
+
+    <JavaScript>
+        var Observable = require("FuseJS/Observable");
+        
+        const API_KEY = "XXX-YOUR-API-KEY-YYYY"  
+        var cryptocurrencies = Observable();
+
+        function cryptocurrency(item) {
+            this.symbol = item.symbol
+            this.name = item.name
+            this.price_usd = item.quote.USD.price.toFixed(2)
+        }
+
+        fetch(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?CMC_PRO_API_KEY=${API_KEY}`)
+		.then(function(response) { return response.json(); })
+		.then(function(responseObject) {
+            const data = responseObject.data
+			for (var i in data) {
+                cryptocurrencies.add(new cryptocurrency(data[i]))
+			}
+		});
+
+        function goToDetail(arg) {
+            //console.log(JSON.stringify(arg)) log args
+            const overviewData = arg.data
+            router.push("detail", overviewData)
+        }
+
+        module.exports = {
+            cryptocurrencies,
+            goToDetail,
+        }
+    </JavaScript>
+</Page>
